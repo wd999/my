@@ -1,10 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给你的今日安慰</title>
+    <style>
+        /* 1. 基础样式：设置柔和的背景和字体 */
+        :root {
+            --primary-color: #88d3ce; /* 薄荷绿 */
+            --secondary-color: #6e45e2; /* 柔和紫 */
+            --text-color: #4a4a4a;
+            --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: var(--bg-gradient);
+            color: var(--text-color);
+        }
+
+        /* 2. 卡片容器设计 */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* 3. 标题与图标 */
+        .icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            color: #888;
+            font-weight: normal;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        /* 4. 语录展示区 */
+        #quote-display {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            min-height: 100px; /* 防止内容切换时卡片高度跳动 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* 5. 按钮样式 */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        button {
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(110, 69, 226, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: #5b37c4;
+            transform: scale(1.05);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid #ddd;
+            color: #666;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        /* 简单动画 */
+        .fade-in {
+            animation: fadeIn 0.8s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
-    <h1>test</h1>
+
+<div class="card">
+    <span class="icon">☕</span>
+    <h1>休息一下，听我说</h1>
+
+    <div id="quote-display">
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-outline" onclick="copyQuote()">复制这段话</button>
+        <button class="btn-primary" onclick="generateQuote()">换一句安慰</button>
+    </div>
+</div>
+
+<script>
+    // 这里是你的语录库，你可以随意添加新的句子
+    const quotes = [
+        "不用时刻保持完美，偶尔崩溃一下也没关系，你是人，不是机器。",
+        "你已经做得很好了，如果今天没有达到预期，那只是因为今天太累了。",
+        "允许自己做一只慢吞吞的蜗牛，太阳照常会升起，你也会慢慢变好。",
+        "别慌，月亮也曾缺席，但它终究会圆满。",
+        "生活原本沉闷，但跑起来就有风。今天的你，也辛苦了。",
+        "没关系的，那些让你难过的事情，终有一天会笑着说出来。",
+        "给时间一点时间，让过去过去，让开始开始。",
+        "如果不开心，就去吹吹风吧，风会带走所有烦恼。",
+        "无论发生什么，都要记得爱自己，你是这世界上独一无二的珍宝。",
+        "此时此刻的焦虑，是因为你想变得更好。放轻松，你已经在路上了。"
+    ];
+
+    const displayElement = document.getElementById('quote-display');
+
+    function generateQuote() {
+        // 1. 随机获取索引
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        const quote = quotes[randomIndex];
+
+        // 2. 添加淡入动画效果
+        displayElement.classList.remove('fade-in');
+        // 强制浏览器重绘，以便重新触发动画
+        void displayElement.offsetWidth;
+
+        // 3. 更新文字
+        displayElement.textContent = quote;
+        displayElement.classList.add('fade-in');
+    }
+
+    function copyQuote() {
+        const text = displayElement.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('已复制到剪贴板，快去分享吧！(｡♥‿♥｡)');
+        }).catch(err => {
+            alert('复制失败，请手动复制哦');
+        });
+    }
+
+    // 页面加载时自动生成一句
+    generateQuote();
+</script>
 </body>
 </html>
