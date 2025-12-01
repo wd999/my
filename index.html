@@ -135,30 +135,62 @@
 </div>
 
 <script>
-    // 这里是你的语录库，你可以随意添加新的句子
-    const quotes = [
-        "不用时刻保持完美，偶尔崩溃一下也没关系，你是人，不是机器。",
-        "你已经做得很好了，如果今天没有达到预期，那只是因为今天太累了。",
-        "允许自己做一只慢吞吞的蜗牛，太阳照常会升起，你也会慢慢变好。",
-        "别慌，月亮也曾缺席，但它终究会圆满。",
-        "生活原本沉闷，但跑起来就有风。今天的你，也辛苦了。",
-        "没关系的，那些让你难过的事情，终有一天会笑着说出来。",
-        "给时间一点时间，让过去过去，让开始开始。",
-        "如果不开心，就去吹吹风吧，风会带走所有烦恼。",
-        "无论发生什么，都要记得爱自己，你是这世界上独一无二的珍宝。",
-        "此时此刻的焦虑，是因为你想变得更好。放轻松，你已经在路上了。"
-    ];
+    const QUOTES_URL = 'https://wd999/my/main/quotes.json';
 
     const displayElement = document.getElementById('quote-display');
+    const btnGenerate = document.querySelector('.btn-primary');
+    const btnCopy = document.querySelector('.btn-outline');
 
+    let loadedQuotes = []; // 用于存储从网络加载的语录
+
+    // 异步函数：从网络获取语录数据
+    async function loadQuotes() {
+        // 禁用按钮，避免在加载时用户点击
+        btnGenerate.disabled = true;
+        btnCopy.disabled = true;
+
+        try {
+            // 使用 Fetch API 获取远程 JSON 文件
+            const response = await fetch(QUOTES_URL);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // 假设 JSON 结构是 { "quotes": [...] }
+            if (data.quotes && Array.isArray(data.quotes)) {
+                loadedQuotes = data.quotes;
+            } else {
+                // 如果 JSON 格式不正确
+                throw new Error("JSON structure invalid.");
+            }
+
+        } catch (error) {
+            console.error('获取语录失败:', error);
+            // 失败时的备用语录
+            loadedQuotes = ["网络连接失败，请检查你的数据源URL是否正确。", "请稍后再试，或者联系管理员。", "⭐ 保持微笑 :)"];
+        } finally {
+            // 无论成功失败，都重新启用按钮
+            btnGenerate.disabled = false;
+            btnCopy.disabled = false;
+        }
+    }
+
+    // 核心函数：从加载的语录库中随机选择并显示
     function generateQuote() {
+        if (loadedQuotes.length === 0) {
+            displayElement.textContent = "语录加载中或为空...";
+            return;
+        }
+
         // 1. 随机获取索引
-        const randomIndex = Math.floor(Math.random() * quotes.length);
-        const quote = quotes[randomIndex];
+        const randomIndex = Math.floor(Math.random() * loadedQuotes.length);
+        const quote = loadedQuotes[randomIndex];
 
         // 2. 添加淡入动画效果
         displayElement.classList.remove('fade-in');
-        // 强制浏览器重绘，以便重新触发动画
         void displayElement.offsetWidth;
 
         // 3. 更新文字
@@ -175,8 +207,14 @@
         });
     }
 
-    // 页面加载时自动生成一句
-    generateQuote();
+    // 绑定事件
+    btnGenerate.onclick = generateQuote;
+    btnCopy.onclick = copyQuote;
+
+    // 页面加载时：先加载语录，成功后显示第一句
+    loadQuotes().then(() => {
+        generateQuote();
+    });
 </script>
 </body>
 </html>
